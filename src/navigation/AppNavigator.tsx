@@ -17,6 +17,7 @@ import HelpScreen from '../screens/Help/HelpScreen';
 // Import custom drawer content components
 import MainDrawerContent from '../components/navigation/MainDrawerContent';
 import CustomerConsoleDrawerContent from '../components/navigation/CustomerConsoleDrawerContent';
+import DashboardScreen from '../screens/Dashboard/DashboardScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -43,6 +44,7 @@ const DrawerToggleButton = ({ navigation }: { navigation: any }) => (
 const CustomerStack = () => (
   <Stack.Navigator
     screenOptions={{
+      headerShown:false,
       headerStyle: {
         backgroundColor: '#007AFF',
       },
@@ -52,6 +54,11 @@ const CustomerStack = () => (
       },
     }}
   >
+    <Stack.Screen
+      name="Dashboard"
+      component={DashboardScreen}
+      options={{ title: 'Dashboard' }}
+    />
     <Stack.Screen
       name="CustomerList"
       component={CustomerListScreen}
@@ -112,6 +119,7 @@ const CustomerConsoleDrawer = () => (
   <Drawer.Navigator
     drawerContent={(props) => <CustomerConsoleDrawerContent {...props} />}
     screenOptions={{
+      headerShown: false,
       headerStyle: {
         backgroundColor: '#007AFF',
       },

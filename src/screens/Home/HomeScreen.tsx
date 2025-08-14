@@ -1,194 +1,162 @@
-import React from 'react';
+
+import React, { FC } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
-import { useAuth } from '../../hooks/useAuth';
-import { COLORS } from '../../constants/colors';
-import { STRINGS } from '../../constants/strings';
-import CustomButton from '../../components/common/CustomButton';
 import CustomHeader from '../../components/common/CustomHeader';
+import { COLORS } from '../../constants/colors';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import images from '../../constants/images';
+import { renderLogo } from '../../utils/renderlogo';
+
+const hubs = [
+  { id: 1, title: 'Marketing Hub', modified: '1 weeks ago' },
+  { id: 2, title: 'Sales Hub', modified: '3 Days ago' },
+  { id: 3, title: 'Customer Service Hub', modified: '1 weeks ago' },
+];
 
 interface HomeScreenProps {
   navigation: any;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { user, logout } = useAuth();
+const HomeScreen: FC<HomeScreenProps> = ({ navigation }) => {
   const drawerNavigation = useNavigation();
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  const navigateToCustomerConsole = () => {
-    navigation.navigate('CustomerConsole');
-  };
-
-  const navigateToLeads = () => {
-    navigation.navigate('Leads');
-  };
-
-  const navigateToProfile = () => {
-    navigation.navigate('Profile');
-  };
+  const { user, logout } = useAuth();
 
   const openDrawer = () => {
-    // Try to get the closest drawer parent (works when HomeScreen is inside a Drawer)
     const parent = navigation.getParent?.() ?? drawerNavigation.getParent?.();
-
-    // If there is a parent navigator and it supports drawer actions, toggle it
     if (parent) {
       parent.dispatch(DrawerActions.toggleDrawer());
       return;
     }
-
-    // Fallback: if the passed navigation has openDrawer (rare when nested in stacks), call it
-    // @ts-ignore - openDrawer may not exist on typed navigation
     if (typeof navigation.openDrawer === 'function') {
-      // @ts-ignore
       navigation.openDrawer();
     }
   };
-
+  const handleHubPress = (title: string) => {
+    if (title === 'Customer Service Hub') {
+      navigation.navigate('CustomerConsole');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <CustomHeader
-        title="Home"
-        onDrawerOpen={() => openDrawer()}
-        showDrawerIcon={true}
+        variant={{
+          type: 'home',
+          title: 'Home',
+          showProfile: true,
+          profileImage: 'https://i.pravatar.cc/300',
+        }}
+        onSearch={() => console.log('Search pressed')}
+        onAdd={() => console.log('Add pressed')}
+        onSettings={() => console.log('Settings pressed')}
+        onDrawerOpen={openDrawer}
       />
+
       <ScrollView style={styles.content}>
+        {/* Welcome Section */}
         <View style={styles.welcomeSection}>
-          <Text style={styles.title}>Welcome to CRM</Text>
-          <Text style={styles.subtitle}>
-            {STRINGS.WELCOME_BACK} {user?.name || 'User'}!
+          <Text style={styles.welcomeTitle}>
+            Welcome to the future of work!
           </Text>
+          <Text style={styles.welcomeSubtitle}>Powered by Ai sante</Text>
         </View>
 
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>150</Text>
-          <Text style={styles.statLabel}>{STRINGS.TOTAL_CUSTOMERS}</Text>
-        </View>
-        
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>25</Text>
-          <Text style={styles.statLabel}>{STRINGS.TOTAL_LEADS}</Text>
-        </View>
-      </View>
-
-      <View style={styles.actionsContainer}>
-        <Text style={styles.sectionTitle}>Quick Navigation</Text>
-        
-        <CustomButton
-          title="Customer Console"
-          onPress={navigateToCustomerConsole}
-          style={styles.actionButton}
-        />
-        
-        <CustomButton
-          title="Leads Management"
-          onPress={navigateToLeads}
-          variant="secondary"
-          style={styles.actionButton}
-        />
-        
-        <CustomButton
-          title="My Profile"
-          onPress={navigateToProfile}
-          variant="outline"
-          style={styles.actionButton}
-        />
-      </View>
-
-        <View style={styles.logoutContainer}>
-          <CustomButton
-            title={STRINGS.LOGOUT}
-            onPress={handleLogout}
-            variant="outline"
-          />
-        </View>
+        {/* Hub List */}
+        {hubs.map((hub) => (
+          <TouchableOpacity
+            key={hub.id}
+            style={styles.hubCard}
+            onPress={() => handleHubPress(hub.title)}
+          >
+            <View style={styles.hubLeft}>
+              <View style={styles.hubIcon} />
+              <View>
+                <Text style={styles.hubTitle}>{hub.title}</Text>
+                <Text style={styles.hubSub}>System</Text>
+              </View>
+            </View>
+            <Text style={styles.hubModified}>Modified: {hub.modified}</Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
+
+      {/* Floating Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => console.log('AI Action')}
+      >
+       {renderLogo(images.chatbotlogo, { width: 300, height: 60 ,resizeMode: 'contain'})}
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: '#F5F7FB' },
+  content: { flex: 1 },
   welcomeSection: {
-    padding: 20,
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.dark,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.gray,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    padding: 20,
-    gap: 16,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    padding: 20,
-    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
-    shadowColor: COLORS.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 3,
+    backgroundColor: '#F5F7FB',
   },
-  statNumber: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    marginBottom: 8,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: COLORS.gray,
+  welcomeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#5B2C83',
     textAlign: 'center',
   },
-  actionsContainer: {
-    padding: 20,
+  welcomeSubtitle: {
+    fontSize: 14,
+    color: '#6B6B6B',
+    marginTop: 4,
+    textAlign: 'center',
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: COLORS.dark,
-    marginBottom: 16,
-  },
-  actionButton: {
+  hubCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    marginHorizontal: 16,
     marginBottom: 12,
+    padding: 12,
+    borderRadius: 10,
   },
-  logoutContainer: {
-    padding: 20,
-    marginTop: 20,
+  hubLeft: { flexDirection: 'row', alignItems: 'center' },
+  hubIcon: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 6,
+    marginRight: 12,
   },
+  hubTitle: { fontSize: 16, fontWeight: '600', color: COLORS.dark },
+  hubSub: { fontSize: 12, color: COLORS.gray },
+  hubModified: { fontSize: 12, color: COLORS.gray },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    // backgroundColor: COLORS.white,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    // elevation: 4,
+  },
+ 
 });
 
 export default HomeScreen;

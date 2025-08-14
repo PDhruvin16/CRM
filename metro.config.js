@@ -22,7 +22,7 @@ const config = {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
   },
   resolver: {
-    assetExts: ['bin', 'txt', 'jpg', 'png', 'json', 'gif', 'webp', 'jsbundle', 'ttf', 'otf', 'woff', 'woff2'],
+    assetExts: ['bin', 'txt', 'jpg', 'png', 'json', 'gif', 'webp', 'jsbundle', 'ttf', 'otf', 'woff', 'woff2','lottie'],
     sourceExts: ['js', 'json', 'ts', 'tsx', 'jsx', 'svg'],
   },
 };

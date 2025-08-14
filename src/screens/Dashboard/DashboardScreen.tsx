@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import {
   View,
   Text,
@@ -9,26 +9,53 @@ import { useAuth } from '../../hooks/useAuth';
 import { COLORS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
 import CustomButton from '../../components/common/CustomButton';
+import CustomHeader from '../../components/common/CustomHeader';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 interface DashboardScreenProps {
   onNavigateToCustomerConsole?: () => void;
+  navigation?: any; // Optional navigation prop for direct navigation
 }
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToCustomerConsole }) => {
   const { user, logout } = useAuth();
-
+const navigation = useNavigation();
   const handleLogout = () => {
     logout();
+  };
+  const openDrawer = () => {
+    // Try to get the closest drawer parent (works when HomeScreen is inside a Drawer)
+    const parent = navigation.getParent?.() ?? navigation.getParent?.();
+
+    // If there is a parent navigator and it supports drawer actions, toggle it
+    if (parent) {
+      parent.dispatch(DrawerActions.toggleDrawer());
+      return;
+    }
+
+    // Fallback: if the passed navigation has openDrawer (rare when nested in stacks), call it
+    // @ts-ignore - openDrawer may not exist on typed navigation
+    if (typeof navigation.openDrawer === 'function') {
+      // @ts-ignore
+      navigation.openDrawer();
+    }
   };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>{STRINGS.DASHBOARD}</Text>
         <Text style={styles.subtitle}>
           {STRINGS.WELCOME_BACK} {user?.name || 'User'}!
         </Text>
-      </View>
+      </View> */}
+      <CustomHeader
+  variant={{ type: 'service_hub' }}
+  onSearch={() => {}}
+  onAdd={() => {}}
+  onSettings={() => {}}
+  openGrid={() => {openDrawer()}}
+/>
 
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>

@@ -24,6 +24,8 @@ import CustomButton from '../../components/common/CustomButton';
 import Loader from '../../components/common/Loader';
 import GradientHeader from '../../components/common/Authheader';
 import images from '../../constants/images';
+import MaskedView from '@react-native-masked-view/masked-view';
+import LinearGradient from 'react-native-linear-gradient';
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -127,12 +129,35 @@ const LoginScreen: React.FC = () => {
             />
           </View>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.forgotPasswordContainer}
             onPress={navigateToForgotPassword}
           >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+           <TouchableOpacity
+                    // style={{ alignSelf: 'center', marginTop: 12 }}
+                       style={styles.forgotPasswordContainer}
+                    onPress={navigateToForgotPassword}
+                  >
+                    <MaskedView
+                      maskElement={
+                        <Text style={[styles.forgotPasswordText, { backgroundColor: 'transparent' }]}>
+                          forgot password?
+                        </Text>
+                      }
+                    >
+                      <LinearGradient
+                        colors={['#404698', '#882785']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                      >
+                        <Text style={[styles.forgotPasswordText, { opacity: 0 }]}>
+                      forgot password?
+                        </Text>
+                      </LinearGradient>
+                    </MaskedView>
+                  </TouchableOpacity>
 
           <CustomButton
             title="Log In"
@@ -196,6 +221,7 @@ const styles = StyleSheet.create({
   forgotPasswordContainer: {
     alignSelf: 'flex-end',
     marginBottom: 30,
+    marginTop:-20
   },
   forgotPasswordText: {
     fontSize: 14,

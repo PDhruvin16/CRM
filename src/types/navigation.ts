@@ -13,6 +13,9 @@ export type AuthStackParamList = {
   Signup: undefined;
   ForgotPassword: undefined;
   ResetPassword: { token: string };
+  Verification: undefined;
+  OtpSuccess: undefined;
+
 };
 
 // Main App Tab Navigator Types
