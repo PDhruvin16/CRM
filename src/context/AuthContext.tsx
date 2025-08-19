@@ -75,8 +75,8 @@ const authReducer = (state: typeof initialState, action: any) => {
   }
 };
 
-// Create context
-const AuthContext = createContext<any>();
+// Create context (kept for legacy, but not used now)
+const AuthContext = createContext<any>({});
 
 // Provider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

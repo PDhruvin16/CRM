@@ -1,23 +1,21 @@
 // Re-export Redux auth hooks
 // export { useAuthState, useUser, useIsAuthenticated, useIsLoading, useError } from './useRedux';
 
-import { useDispatch } from "react-redux";
-import { useAuthState, useUser } from "./useRedux";
-import { loginUser } from "../store/slices/authSlice";
+import { useAuthState, useAppDispatch } from "./useRedux";
+import { loginUser, checkAuthStatus, logoutUser } from "../store/slices/authSlice";
 
 // Legacy hook for backward compatibility
 export const useAuth = () => {
-  const dispatch = useDispatch(); 
+  const dispatch = useAppDispatch(); 
   const authState = useAuthState();
   return {
     ...authState,
-    // login: () => {useUser()},
-      //  login: (formValues:any) => useDispatch(loginUser(formValues)),
-         login: (formValues: { email: string; password: string }) =>
-      dispatch(loginUser(formValues)),
-        // These will be handled by Redux actions
+    login: (formValues: { email: string; password: string }) =>
+      dispatch(loginUser(formValues)).unwrap(),
+    checkAuthStatus: () => dispatch(checkAuthStatus()).unwrap(),
+    logout: () => dispatch(logoutUser()).unwrap(),
+    // Placeholders for future
     register: () => {},
-    logout: () => {},
     updateUser: () => {},
     clearError: () => {},
   };

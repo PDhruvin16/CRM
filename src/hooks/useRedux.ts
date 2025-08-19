@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch } from '../store';
 
 // Typed useSelector hook
 export const useAppSelector = useSelector;
 
 // Typed useDispatch hook
-export const useAppDispatch = useDispatch;
+export const useAppDispatch: () => AppDispatch = () => useDispatch<AppDispatch>();
 
 // Custom hook for auth state
 export const useAuthState = () => {

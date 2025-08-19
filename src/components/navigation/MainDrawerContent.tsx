@@ -202,11 +202,16 @@ import {
   Alert,
 } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../constants/colors';
 import Icon from 'react-native-vector-icons/Feather'; // Using Feather icons
+import { useAuth } from '../../hooks/useAuth';
 
-const MainDrawerContent = (props) => {
+type Props = {
+  navigation: any;
+};
+
+const MainDrawerContent = (props: Props) => {
   const { user, logout } = useAuth() as any;
 
   const handleLogout = () => {
@@ -294,7 +299,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: COLORS.dark,
   },
   email: {
     fontSize: 13,
@@ -324,7 +329,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 14,
-    color: COLORS.text,
+    color: COLORS.dark,
   },
   logoutButton: {
     flexDirection: 'row',

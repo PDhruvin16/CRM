@@ -15,7 +15,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../types/navigation';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useForm } from '../../hooks/useForm';
 import { COLORS } from '../../constants/colors';
 import { STRINGS } from '../../constants/strings';
@@ -26,6 +26,17 @@ import GradientHeader from '../../components/common/Authheader';
 import images from '../../constants/images';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
+import * as Yup from 'yup';
+
+// Validation schema must be declared before it's used
+const loginValidationSchema: any = Yup.object().shape({
+  email: Yup.string()
+    .email('Please enter a valid email')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -33,19 +44,26 @@ const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { login, isLoading, error } = useAuth() as any;
 
-  const { values, errors, handleChange, handleSubmit, isSubmitting } = useForm<{
+  // Debug logging
+  console.log('LoginScreen - isLoading:', isLoading);
+  console.log('LoginScreen - error:', error);
+
+  const { values, errors, handleChange, handleSubmit, isSubmitting, handleBlur } = useForm<{
     email: string;
     password: string;
   }>({
     email: '',
     password: '',
-  });
+  }, loginValidationSchema);
 
-  const handleLogin = async (_formValues: { email: string; password: string }) => {
+  const handleLogin = async (formValues: { email: string; password: string }) => {
     try {
-      await login({ email: 'test@test.com', password: 'test123' });
+      console.log('LoginScreen: Attempting login with:', formValues);
+      const result = await login(formValues);
+      console.log('LoginScreen: Login result:', result);
       Alert.alert('Success', 'Login successful!');
     } catch (error: any) {
+      console.log('LoginScreen: Login error:', error);
       Alert.alert('Login Failed', error?.message || 'Please check your credentials');
     }
   };
@@ -57,6 +75,7 @@ const LoginScreen: React.FC = () => {
   const navigateToForgotPassword = () => {
     navigation.navigate('ForgotPassword');
   };
+ 
 
   return (
     <KeyboardAvoidingView
@@ -67,35 +86,35 @@ const LoginScreen: React.FC = () => {
 
 
 
-<View style={{  
- 
-        backgroundColor: 'violet',
-        
-      }}>
-      <GradientHeader
-        logoSource={images.AppLogo} // ✅ Directly pass SVG component
-        logoStyle={{ width: 200, height: 100, marginBottom: 20, backgroundColor: 'violet' }}
-      />
       <View style={{
+
+        backgroundColor: 'violet',
+
+      }}>
+        <GradientHeader
+          logoSource={images.AppLogo} // ✅ Directly pass SVG component
+          logoStyle={{ width: 200, height: 100, marginBottom: 20, backgroundColor: 'violet' }}
+        />
+        <View style={{
           ...StyleSheet.absoluteFillObject, // makes it fill its parent
           backgroundColor: '#FFFFFF99',
-       
+
           borderRadius: 150,
           top: 230,
           bottom: 0,
           height: 60,
           width: '90%',
           left: '5%',
-        
+
         }} />
-</View>
+      </View>
 
       <ScrollView
         style={styles.contentContainer}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        
+
         <View style={styles.headerContent}>
           <Text style={[styles.headerTitle,]}>Welcome to AI SANTE!</Text>
 
@@ -108,6 +127,7 @@ const LoginScreen: React.FC = () => {
             <CustomInput
               value={values.email}
               onChangeText={(text) => handleChange('email', text)}
+              onBlur={() => handleBlur('email')}
               placeholder="Enter username"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -122,6 +142,7 @@ const LoginScreen: React.FC = () => {
             <CustomInput
               value={values.password}
               onChangeText={(text) => handleChange('password', text)}
+              onBlur={() => handleBlur('password')}
               placeholder="••••••••••"
               secureTextEntry
               error={errors.password}
@@ -129,35 +150,30 @@ const LoginScreen: React.FC = () => {
             />
           </View>
 
-          {/* <TouchableOpacity
+
+          <TouchableOpacity
+            // style={{ alignSelf: 'center', marginTop: 12 }}
             style={styles.forgotPasswordContainer}
             onPress={navigateToForgotPassword}
           >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity> */}
-           <TouchableOpacity
-                    // style={{ alignSelf: 'center', marginTop: 12 }}
-                       style={styles.forgotPasswordContainer}
-                    onPress={navigateToForgotPassword}
-                  >
-                    <MaskedView
-                      maskElement={
-                        <Text style={[styles.forgotPasswordText, { backgroundColor: 'transparent' }]}>
-                          forgot password?
-                        </Text>
-                      }
-                    >
-                      <LinearGradient
-                        colors={['#404698', '#882785']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                      >
-                        <Text style={[styles.forgotPasswordText, { opacity: 0 }]}>
-                      forgot password?
-                        </Text>
-                      </LinearGradient>
-                    </MaskedView>
-                  </TouchableOpacity>
+            <MaskedView
+              maskElement={
+                <Text style={[styles.forgotPasswordText, { backgroundColor: 'transparent' }]}>
+                  forgot password?
+                </Text>
+              }
+            >
+              <LinearGradient
+                colors={['#404698', '#882785']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={[styles.forgotPasswordText, { opacity: 0 }]}>
+                  forgot password?
+                </Text>
+              </LinearGradient>
+            </MaskedView>
+          </TouchableOpacity>
 
           <CustomButton
             title="Log In"
@@ -166,12 +182,7 @@ const LoginScreen: React.FC = () => {
             style={styles.loginButton}
           />
 
-          {/* <View style={styles.footer}>
-            <Text style={styles.footerText}>{STRINGS.DONT_HAVE_ACCOUNT}</Text>
-            <TouchableOpacity onPress={navigateToSignup}>
-              <Text style={styles.signupText}>{STRINGS.SIGN_UP_HERE}</Text>
-            </TouchableOpacity>
-          </View> */}
+         
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -221,7 +232,7 @@ const styles = StyleSheet.create({
   forgotPasswordContainer: {
     alignSelf: 'flex-end',
     marginBottom: 30,
-    marginTop:-20
+    marginTop: -20
   },
   forgotPasswordText: {
     fontSize: 14,

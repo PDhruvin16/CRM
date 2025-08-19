@@ -98,7 +98,12 @@ const CustomInput: React.FC<InputProps & TextInputProps> = ({
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       
-      <View style={styles.inputContainer}>
+      <View style={[
+        styles.inputContainer,
+        isFocused ? styles.focused : null,
+        error ? styles.error : null,
+        disabled ? styles.disabled : null,
+      ]}>
         {leftIcon && (
           <View style={styles.leftIconContainer}>
             <Text style={styles.iconText}>{leftIcon}</Text>
@@ -119,7 +124,10 @@ const CustomInput: React.FC<InputProps & TextInputProps> = ({
           numberOfLines={numberOfLines}
           editable={!disabled}
           onFocus={handleFocus}
-          onBlur={handleBlur}
+          onBlur={(e) => {
+            handleBlur();
+            props?.onBlur && props.onBlur(e);
+          }}
           {...props}
         />
         

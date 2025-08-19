@@ -4,7 +4,6 @@ import { StatusBar } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { store, persistor } from './store';
@@ -15,18 +14,22 @@ import AuthNavigator from './navigation/AuthNavigator';
 import Loader from './components/common/Loader';
 import NetworkStatus from './components/common/NetworkStatus';
 import { COLORS } from './constants/colors';
+import { useAuthState, useAppDispatch } from './hooks/useRedux';
+import { checkAuthStatus } from './store/slices/authSlice';
 
 const AppContent = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isLoading } = useAuthState();
 
   // Initialize network monitoring
   useEffect(() => {
     networkService.initialize();
+    dispatch(checkAuthStatus());
     
     return () => {
       networkService.cleanup();
     };
-  }, []);
+  }, [dispatch]);
 
   if (isLoading) {
     return <Loader visible={true} text="Loading..." />;
@@ -50,11 +53,9 @@ const App = () => {
       <PersistGate loading={<Loader visible={true} text="Loading..." />} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <AuthProvider>
-              <NotificationProvider>
-                <AppContent />
-              </NotificationProvider>
-            </AuthProvider>
+            <NotificationProvider>
+              <AppContent />
+            </NotificationProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </PersistGate>
