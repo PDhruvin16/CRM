@@ -23,7 +23,7 @@ const AUTH_ACTIONS = {
 };
 
 // Reducer
-const authReducer = (state, action) => {
+const authReducer = (state: typeof initialState, action: any) => {
   switch (action.type) {
     case AUTH_ACTIONS.SET_LOADING:
       return {
@@ -76,10 +76,10 @@ const authReducer = (state, action) => {
 };
 
 // Create context
-const AuthContext = createContext();
+const AuthContext = createContext<any>();
 
 // Provider component
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // Check if user is logged in on app start
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (credentials) => {
+  const login = async (credentials : any) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
@@ -151,14 +151,14 @@ export const AuthProvider = ({ children }) => {
       });
 
       return response;
-    } catch (error) {
+    } catch (error : any) {
       const errorMessage = error.response?.data?.message || 'Login failed';
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       throw error;
     }
   };
 
-  const register = async (userData) => {
+  const register = async (userData :  any) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
@@ -175,7 +175,7 @@ export const AuthProvider = ({ children }) => {
       });
       
       return response;
-    } catch (error) {
+    } catch (error : any) {
       const errorMessage = error.response?.data?.message || 'Registration failed';
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       throw error;
@@ -197,7 +197,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUser = (userData) => {
+  const updateUser = (userData : any) => {
     dispatch({ type: AUTH_ACTIONS.SET_USER, payload: userData });
     AsyncStorage.setItem('userData', JSON.stringify(userData));
   };
