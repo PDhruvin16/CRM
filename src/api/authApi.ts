@@ -1,18 +1,15 @@
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import axiosClient from './axiosClient';
 import { ENDPOINTS } from './endpoints';
-import { LoginRequest, RegisterRequest, LoginResponse, User } from '@/types/api';
+import { LoginRequest, RegisterRequest, LoginResponse, User } from '../types/api';
+import httpClient from './httpClient';
 
 export const authApi = {
   // Login user
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.LOGIN, credentials);
-      console.log('AuthApi login response:', response);
-      // The axios interceptor already returns response.data, so response is already the data
-      return response as unknown as LoginResponse;
+      const response = await httpClient.post<LoginResponse>(ENDPOINTS.AUTH.LOGIN, credentials);
+      return response;
     } catch (error) {
-      console.error('AuthApi login error:', error);
       throw error;
     }
   },
@@ -20,8 +17,8 @@ export const authApi = {
   // Register user
   register: async (userData: RegisterRequest): Promise<LoginResponse> => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.REGISTER, userData);
-      return response.data;
+      const response = await httpClient.post<LoginResponse>(ENDPOINTS.AUTH.REGISTER, userData);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -30,7 +27,7 @@ export const authApi = {
   // Logout user
   logout: async () => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.LOGOUT);
+      const response = await httpClient.post(ENDPOINTS.AUTH.LOGOUT);
       return response;
     } catch (error) {
       throw error;
@@ -40,7 +37,7 @@ export const authApi = {
   // Refresh token
   refreshToken: async (refreshToken: string) => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.REFRESH_TOKEN, {
+      const response = await httpClient.post(ENDPOINTS.AUTH.REFRESH_TOKEN, {
         refreshToken,
       });
       return response;
@@ -52,7 +49,7 @@ export const authApi = {
   // Forgot password
   forgotPassword: async (email: string) => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+      const response = await httpClient.post(ENDPOINTS.AUTH.FORGOT_PASSWORD, {
         email,
       });
       return response;
@@ -64,7 +61,7 @@ export const authApi = {
   // Reset password
   resetPassword: async (token: string, newPassword: string) => {
     try {
-      const response = await axiosClient.post(ENDPOINTS.AUTH.RESET_PASSWORD, {
+      const response = await httpClient.post(ENDPOINTS.AUTH.RESET_PASSWORD, {
         token,
         newPassword,
       });
@@ -76,8 +73,8 @@ export const authApi = {
 
 getProfile: async (): Promise<User> => {
     try {
-      const response = await axiosClient.get(ENDPOINTS.AUTH.PROFILE);
-      return response.data;
+      const response = await httpClient.get<User>(ENDPOINTS.USER.PROFILE);
+      return response;
     } catch (error) {
       throw error;
     }

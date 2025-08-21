@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import authApi from '../../api/authApi';
+import storage from '../../utils/storage';
 
 // Async thunks
 export const loginUser = createAsyncThunk(
@@ -17,8 +18,8 @@ export const loginUser = createAsyncThunk(
       console.log('✅ Login API response received:', response);
 
       // Store tokens in AsyncStorage
-      await AsyncStorage.setItem('authToken', response.access);
-      await AsyncStorage.setItem('refreshToken', response.refresh);
+      await storage.setString('authToken', response.access);
+      await storage.setString('refreshToken', response.refresh);
       console.log('💾 Tokens stored in AsyncStorage');
 
       // Create basic user data from credentials (avoiding profile fetch for now)

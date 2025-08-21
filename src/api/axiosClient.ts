@@ -142,7 +142,6 @@ axiosClient.interceptors.response.use(
       }
     }
     // printf("fghfsdfkuhskhfvjbnmbngyjhgb ")
-    print
     return Promise.reject(error);
   }
 );
