@@ -14,7 +14,7 @@ import { COLORS } from '../../constants/colors';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import images from '../../constants/images';
 import { renderLogo } from '../../utils/renderlogo';
-
+import SvgUri from 'react-native-svg-uri';
 const hubs = [
   { id: 1, title: 'Marketing Hub', modified: '1 weeks ago' },
   { id: 2, title: 'Sales Hub', modified: '3 Days ago' },
@@ -87,13 +87,17 @@ const HomeScreen: FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
+     
       {/* Floating Button */}
+
       <TouchableOpacity
         style={styles.fab}
         onPress={() => console.log('AI Action')}
       >
-       {renderLogo(images.chatbotlogo, { width: 300, height: 60 ,resizeMode: 'contain'})}
+        <Image
+          source={images.loggo}
+          style={{ width: 50, height: 50, resizeMode: 'contain' }}
+        />
       </TouchableOpacity>
     </View>
   );

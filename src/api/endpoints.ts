@@ -2,19 +2,19 @@
 export const ENDPOINTS: Record<string, any> = {
   // Auth endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH_TOKEN: '/auth/refresh',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
+    LOGIN: '/api/token/', // Matching your curl command exactly
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH_TOKEN: '/api/auth/refresh',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password',
   },
 
   // User endpoints
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/profile',
-    CHANGE_PASSWORD: '/user/change-password',
+    PROFILE: '/api/user/profile',
+    UPDATE_PROFILE: '/api/user/profile',
+    CHANGE_PASSWORD: '/api/user/change-password',
   },
 
   // Customer endpoints

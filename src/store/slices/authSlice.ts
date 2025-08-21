@@ -10,42 +10,45 @@ export const loginUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // Mock login for now
-      if (
-        credentials.email === 'test@test.com' &&
-        credentials.password === 'test123'
-      ) {
-        const mockResponse = {
-          token: 'mock-jwt-token-12345',
-          user: {
-            id: 1,
-            name: 'Test User',
-            email: 'test@test.com',
-            role: 'admin',
-          },
-        };
+      console.log('🚀 Starting login process with credentials:', credentials);
+      
+      // Call real API
+      const response = await authApi.login(credentials);
+      console.log('✅ Login API response received:', response);
 
-        // Persist for checkAuthStatus
-        await AsyncStorage.setItem('authToken', mockResponse.token);
-        await AsyncStorage.setItem(
-          'userData',
-          JSON.stringify(mockResponse.user)
-        );
+      // Store tokens in AsyncStorage
+      await AsyncStorage.setItem('authToken', response.access);
+      await AsyncStorage.setItem('refreshToken', response.refresh);
+      console.log('💾 Tokens stored in AsyncStorage');
 
-        return mockResponse;
-      }
-
-      // Future: call real API
-      // const response = await authApi.login(credentials);
-      // await AsyncStorage.setItem('authToken', response.token);
-      // await AsyncStorage.setItem('userData', JSON.stringify(response.user));
-      // return response;
-
-      return rejectWithValue('Invalid email or password');
+      // Create basic user data from credentials (avoiding profile fetch for now)
+      const userData = {
+        id: 'user-id', // We can extract this from JWT token later
+        email: credentials.email,
+        firstName: '',
+        lastName: '',
+        role: 'user' as const,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      console.log('👤 User data stored:', userData);
+      
+      const result = {
+        user: userData,
+        accessToken: response.access,
+        refreshToken: response.refresh,
+      };
+      
+      console.log('🎉 Login successful, returning result:', result);
+      return result;
     } catch (error: unknown) {
-      return rejectWithValue(
-        (error as any)?.response?.data?.message || 'Login failed'
-      );
+      console.error('❌ Login error in auth slice:', error);
+      const errorMessage = (error as any)?.response?.data?.message || 'Login failed';
+      console.error('❌ Error message:', errorMessage);
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -54,12 +57,13 @@ export const checkAuthStatus = createAsyncThunk(
   'auth/checkAuthStatus',
   async (_, { rejectWithValue }) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const accessToken = await AsyncStorage.getItem('authToken');
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
       const userData = await AsyncStorage.getItem('userData');
 
-      if (token && userData) {
+      if (accessToken && refreshToken && userData) {
         const user = JSON.parse(userData);
-        return { user, token };
+        return { user, accessToken, refreshToken };
       }
       return rejectWithValue('Not authenticated');
     } catch (error: unknown) {
@@ -86,6 +90,7 @@ export const logoutUser = createAsyncThunk(
     try {
       // Optional: await authApi.logout();
       await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('refreshToken');
       await AsyncStorage.removeItem('userData');
       return null;
     } catch (error : unknown) {
@@ -94,10 +99,24 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const refreshUserProfile = createAsyncThunk(
+  'auth/refreshProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const userProfile = await authApi.getProfile();
+      await AsyncStorage.setItem('userData', JSON.stringify(userProfile));
+      return userProfile;
+    } catch (error: unknown) {
+      return rejectWithValue((error as any)?.response?.data?.message || 'Failed to refresh profile');
+    }
+  }
+);
+
 // Initial state
 const initialState = {
   user: null,
-  token: null,
+  accessToken: null,
+  refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -116,7 +135,8 @@ const authSlice = createSlice({
     },
     setCredentials: (state, action) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
     },
   },
@@ -130,7 +150,8 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state:any, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -147,14 +168,16 @@ const authSlice = createSlice({
       .addCase(checkAuthStatus.fulfilled, (state: any, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
         state.error = null;
       })
       .addCase(checkAuthStatus.rejected, (state: any) => {
         state.isLoading = false;
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
       });
 
@@ -166,9 +189,12 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state:any, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
+        // Handle register response - you might need to adjust this based on your register API
+        if (action.payload.access && action.payload.refresh) {
+          state.accessToken = action.payload.access;
+          state.refreshToken = action.payload.refresh;
+          state.isAuthenticated = true;
+        }
         state.error = null;
       })
       .addCase(registerUser.rejected, (state:any, action) => {
@@ -184,11 +210,27 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state:any, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // Refresh Profile
+    builder
+      .addCase(refreshUserProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(refreshUserProfile.fulfilled, (state: any, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(refreshUserProfile.rejected, (state: any, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

@@ -18,6 +18,9 @@ import HelpScreen from '../screens/Help/HelpScreen';
 import MainDrawerContent from '../components/navigation/MainDrawerContent';
 import CustomerConsoleDrawerContent from '../components/navigation/CustomerConsoleDrawerContent';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen';
+import EditProfileScreen from '../screens/Auth/EditProfile';
+import ChangePasswordScreen from '../screens/Auth/ChangePassword';
+import RoleModuleScreen from '../screens/Auth/RoleModule';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -100,6 +103,7 @@ const ProfileStack = () => (
       headerStyle: {
         backgroundColor: '#007AFF',
       },
+      headerShown:false,
       headerTintColor: '#fff',
       headerTitleStyle: {
         fontWeight: 'bold',
@@ -108,8 +112,53 @@ const ProfileStack = () => (
   >
     <Stack.Screen
       name="Profile"
-      component={ProfileScreen}
+      component={EditProfileScreen}
       options={{ title: 'Profile' }}
+    />
+     {/* <Stack.Screen
+      name="ChangePassword"
+      component={ChangePasswordScreen}
+      options={{ title: 'Change Password' }}
+    /> */}
+  </Stack.Navigator>
+);
+const ChangePasswordStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      headerStyle: {
+        backgroundColor: '#007AFF',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      },
+    }}
+  >
+    <Stack.Screen
+      name="ChangePassword"
+      component={ChangePasswordScreen}
+      options={{ title: 'Change Password' }}
+    />
+  </Stack.Navigator>
+);
+const RoleModuleStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: '#007AFF',
+      },
+      headerShown: false,
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      },
+    }}
+  >
+    <Stack.Screen
+      name="RoleModule"
+      component={RoleModuleScreen}
+      options={{ title: 'Role Module' }}
     />
   </Stack.Navigator>
 );
@@ -238,6 +287,24 @@ const AppNavigator = () => {
         options={({ navigation }) => ({
           title: 'Help & Support',
           drawerLabel: 'Help & Support',
+          headerLeft: () => <DrawerToggleButton navigation={navigation} />,
+        })}
+      />
+      <Drawer.Screen
+        name="ChangePassword"
+        component={ChangePasswordStack}
+        options={({ navigation }) => ({
+          title: 'Change Password',
+          drawerLabel: 'Change Password',
+          headerLeft: () => <DrawerToggleButton navigation={navigation} />,
+        })}
+      />
+      <Drawer.Screen
+        name="RoleModule"
+        component={RoleModuleStack}
+        options={({ navigation }) => ({
+          title: 'Role Module',
+          drawerLabel: 'Role Module',
           headerLeft: () => <DrawerToggleButton navigation={navigation} />,
         })}
       />

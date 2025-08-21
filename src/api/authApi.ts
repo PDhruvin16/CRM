@@ -8,8 +8,11 @@ export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     try {
       const response = await axiosClient.post(ENDPOINTS.AUTH.LOGIN, credentials);
-      return response.data;
+      console.log('AuthApi login response:', response);
+      // The axios interceptor already returns response.data, so response is already the data
+      return response as unknown as LoginResponse;
     } catch (error) {
+      console.error('AuthApi login error:', error);
       throw error;
     }
   },

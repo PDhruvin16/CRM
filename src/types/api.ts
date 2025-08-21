@@ -168,14 +168,13 @@ export interface LeadFilters {
 
 // API Response types
 export interface LoginResponse {
-  user: User;
-  token: string;
-  refreshToken: string;
+  access: string;
+  refresh: string;
 }
 
 export interface RefreshTokenResponse {
-  token: string;
-  refreshToken: string;
+  access: string;
+  refresh: string;
 }
 
 export interface CustomerResponse extends ApiResponse<Customer> {}

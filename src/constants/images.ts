@@ -2,4 +2,6 @@
 // export default{App_logo};
 import AppLogo from '../../assets/images/logo.svg';
 import chatbotlogo from '../../assets/images/chatbotlogo.svg';
-export default { AppLogo, chatbotlogo };
+
+const loggo = require('../../assets/images/Logo.png');
+export default { AppLogo, chatbotlogo, loggo };
